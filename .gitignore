@@ -1,2 +1,5 @@
 jgraph
 jgraph:Zone.Identifier
+*.pdf
+*.jgr
+*.ps
