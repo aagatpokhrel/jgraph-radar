@@ -1,78 +1,107 @@
 import math
 import sys
+import pandas as pd
 
-# Dummy data for the 2025/26 Premier League Teams
-# Format: Team: [Interceptions, Tackles, Passes, Possession, Goals, Shots, Fouls]
+# Loading data 
+df = pd.read_csv("data/pl_teams.csv")
+# Clean the column possession which represents in %
+df['Possession'] = df['Possession'].str.rstrip('%').astype(float)
+
+labels = ["Interceptions", "Tackles", "Passes", "Possession", "Goals", "Shots", "Fouls"]
+
 team_data = {
-    "Man United": [12.5, 18.2, 540, 54.2, 1.8, 14.2, 11.5],
-    "Liverpool": [10.2, 15.5, 610, 60.1, 2.4, 18.5, 9.2],
-    "Man City": [8.5, 14.1, 720, 65.5, 2.8, 20.1, 8.4],
-    "Chelsea": [11.0, 19.5, 580, 56.8, 1.6, 13.5, 12.1],
-    "Arsenal": [9.8, 16.2, 630, 59.5, 2.1, 16.8, 10.5]
+    row['Teams']: [row[label] for label in labels] 
+    for _, row in df.iterrows()
 }
 
-# Color mapping (RGB)
 team_colors = {
-    "Man United": "1.0 0.1 0.1",
-    "Liverpool": "0.8 0.0 0.0",
-    "Man City": "0.4 0.7 1.0",
-    "Chelsea": "0.0 0.0 0.8",
-    "Arsenal": "0.9 0.0 0.0"
+    row['Teams']: row['Color'].replace(',', '') 
+    for _, row in df.iterrows()
 }
 
-def get_jgraph(team_name):
-    if team_name not in team_data:
-        print(f"(* Error: Team {team_name} not found *)")
-        return
+# multiply by 1.1 to extend the maximum
+max_vals = [df[label].max() * 1.1 for label in labels]
 
-    stats = team_data[team_name]
-    labels = ["Interceptions", "Tackles", "Passes", "Possession", "Goals", "Shots", "Fouls"]
-    
-    # Lab Requirement: Non-trivial data normalization
-    # We scale each stat to a max value to ensure they fit the radar
-    max_vals = [15, 25, 800, 70, 3.5, 25, 15] 
-    
+def get_jgraph(team_names):
+    if not(team_names):
+        # include all teams
+        team_names = team_data.keys()
+    for name in team_names:
+        if name not in team_data:
+            print(f"(* Error: Team {name} not found *)")
+            return
+
     center_x, center_y = 5, 5
     max_radius = 4
-    num_axes = len(stats)
+    num_axes = len(labels)
 
     print("newgraph")
     print("xaxis min 0 max 10 nodraw")
     print("yaxis min 0 max 10 nodraw")
 
-    # Draw background web (concentric heptagons)
-    for level in [0.2, 0.4, 0.6, 0.8, 1.0]:
+    # Legend configuration
+    print("legend top")
+
+    # change as needed
+    web_distance = [0.2, 0.4, 0.6, 0.8, 1.0]
+    scale = 1.5
+    # Background web
+    for level in web_distance:
         print(f"newcurve linetype solid gray .8 poly pfill -1 pts", end="")
         for i in range(num_axes):
             angle = (i * 2 * math.pi / num_axes) + (math.pi / 2)
-            px = center_x + (level * max_radius * math.cos(angle))
-            py = center_y + (level * max_radius * math.sin(angle))
+            px = center_x + (scale * level * max_radius * math.cos(angle))
+            py = center_y + (scale * level * max_radius * math.sin(angle))
             print(f" {px:.2f} {py:.2f}", end="")
         print()
 
-    # Draw the team polygon
-    color = team_colors.get(team_name, "0.5 0.5 0.5")
-    print(f"newcurve linetype solid poly pcfill {color} color {color} linethickness 2 pts", end="")
+    #draw 7 lines from center_x, center_y to last polygon
     for i in range(num_axes):
-        # Lab Requirement: Coordinate math (Trigonometry)
-        normalized = stats[i] / max_vals[i]
         angle = (i * 2 * math.pi / num_axes) + (math.pi / 2)
-        px = center_x + (normalized * max_radius * math.cos(angle))
-        py = center_y + (normalized * max_radius * math.sin(angle))
-        print(f" {px:.2f} {py:.2f}", end="")
-    print()
+        px = center_x + (scale * 1.0 * max_radius * math.cos(angle))
+        py = center_y + (scale * 1.0 * max_radius * math.sin(angle))
+        print(f"newcurve linetype solid gray .8 pts {center_x} {center_y} {px:.2f} {py:.2f}")
 
-    # Draw labels with rotation
+    # label each levels with a % level
+    for level in web_distance:
+        angle = (0 * 2 * math.pi / num_axes) + (math.pi / 2)
+        lx = center_x + (scale * level * max_radius * math.cos(angle))
+        ly = center_y + (scale * level * max_radius * math.sin(angle))
+        # Offset the label slightly to the right for visibility
+        print(f"newstring hjl vjc fontsize 8 x {lx+0.1:.2f} y {ly:.2f} : {int(level*100)}%")
+
+    # Draw the team polygons with legends
+    for index, name in enumerate(team_names):
+        stats = team_data[name]
+        color = team_colors.get(name, "0.5 0.5 0.5")
+        
+        # Polygon with label for the legend
+        print(f"newline poly ", end="")
+        print(f"color {color} linethickness 5 pfill -1 label : {name} \n pts", end="")
+        
+        points = []
+        for i in range(num_axes):
+            normalized = stats[i] / max_vals[i]
+            angle = (i * 2 * math.pi / num_axes) + (math.pi / 2)
+            px = center_x + (scale * normalized * max_radius * math.cos(angle))
+            py = center_y + (scale * normalized * max_radius * math.sin(angle))
+            points.append((px, py))
+            print(f" {px:.2f} {py:.2f}", end="")
+        print()
+
+
+    # Labels
     for i in range(num_axes):
         angle = (i * 2 * math.pi / num_axes) + (math.pi / 2)
-        lx = center_x + (1.1 * max_radius * math.cos(angle))
-        ly = center_y + (1.1 * max_radius * math.sin(angle))
+        lx = center_x + (1.1 * scale * max_radius * math.cos(angle))
+        ly = center_y + (1.1 * scale * max_radius * math.sin(angle))
         print(f"newstring hjc vjc font Helvetica fontsize 10 x {lx:.2f} y {ly:.2f} : {labels[i]}")
 
-    print(f"newstring hjc vjc x 5 y 0.5 font Helvetica-Bold fontsize 16 : {team_name} - 2026 Profile")
+    # Generating Title
+    if len(team_names) == 2: title = " vs ".join(team_names) + " Stats"
+    elif len(team_names) == 1: title = team_names[0] + " Playing Stats"
+    else: title = "Premier League Teams Stats"
+    print(f"newstring hjc vjc x 5 y -5 font Helvetica-Bold fontsize 10 : {title}")
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("(* Usage: python3 gen_radar.py <TeamName> *)")
-    else:
-        get_jgraph(sys.argv[1])
+    get_jgraph(sys.argv[1:])
