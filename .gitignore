@@ -3,3 +3,4 @@ jgraph:Zone.Identifier
 *.pdf
 *.jgr
 *.ps
+!examples/*.pdf
