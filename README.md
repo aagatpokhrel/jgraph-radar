@@ -33,6 +33,40 @@ jgraph-radar/
 	└── radar.cpp
 ```
 
+## Generating Radar JGraphs (How?)
+
+The radar visualization is created in four main steps:
+
+### 1. Parsing Data
+
+The whole data is read from the csv. The first column is team name, and other 7 are stats. So we safecheck for 8 columns. And normalize the 7 stats for the radar plot visualization.
+```cpp
+// For each team, normalize their stats to 0-1 by dividing by the max value
+stat_normalized = team_stat / max_value_for_metric
+```
+
+### 2. Converting Coordinates
+
+Since its a circle we need to convert the polar coordinated graph to X,Y coordinates so we could draw the graph.
+
+```cpp
+// num_axes = 7 (one for each metric)
+angle = (metric_index × 360° / num_axes) + 90°
+x = center_x + radius × cos(angle)
+y = center_y + radius × sin(angle)
+```
+
+The normalized stat value is the radius. Ex: 1.0 reaches the outer edge, 0.5 reaches halfway.
+
+### 3. Draw the Web/Grid
+
+Create concentric circles (0%, 20%, 40%, 60%, 80%, 100%) and radial lines from center to outer edge. Add percentage labels along one axis.
+
+### 4. Draw Team Polygons
+
+For each team, I plot a point for every metric at the normalized radius, then connect all points into a filled polygon with a random color and label.
+
+
 ## Installation and Setup
 
 1. There is a shell script file. Give execute permission to the file with `chmod +x setup.sh`.
@@ -48,10 +82,13 @@ jgraph-radar/
 make
 
 # build and generate graph for specific teams
-make TEAMS="ManCity Arsenal"
+make TEAMS="Arsenal Wolves"
 ```
+The upper command creates a graph for all the teams which is hard to see (but it can still be important to know which one is coming on top or bottom seeing the graph). 
 
-This then creates a pdf file named `MA.pdf` taking in the first letter of both the teams. The lab contains team data in `data/pl_teams.csv`. The available teams are:
+The specific teams command creates a pdf file named `AW.pdf` taking in the first letter of both the teams. This compares two teams with the polygons, with all the metrics.
+
+The lab contains team data in `data/pl_teams.csv`. The available teams are:
 
 | Team |
 |-----:|
