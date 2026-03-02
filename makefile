@@ -5,7 +5,7 @@ EXEC = ./radar
 JGRAPH = ./jgraph/jgraph
 
 # Put the team names, check the README for possible data
-TEAMS = "Arsenal" "ManCity" "Liverpool"
+TEAMS =
 
 # this indicator is for file name, For example "Arsenal Everton" would be "AE.pdf"
 INDICATOR = $(shell echo $(TEAMS) | awk '{for(i=1;i<=NF;i++) printf substr($$i,1,1)}')
