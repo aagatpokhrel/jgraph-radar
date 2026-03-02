@@ -85,10 +85,14 @@ make
 make TEAMS="Arsenal Wolves"
 ```
 The upper command creates a graph for all the teams which is hard to see (but it can still be important to know which one is coming on top or bottom seeing the graph). 
+![All Teams Radar](examples/PLTeams.pdf)
 
 The specific teams command creates a pdf file named `AW.pdf` taking in the first letter of both the teams. This compares two teams with the polygons, with all the metrics.
 
-The lab contains team data in `data/pl_teams.csv`. The available teams are:
+![Arsenal vs Wolves Comparison](examples/AW.pdf)
+
+
+20 teams can be used to compare agains. The lab contains team data in `data/pl_teams.csv`. The available teams are:
 
 | Team |
 |-----:|
@@ -122,3 +126,7 @@ The `makefile` uses the `TEAMS` value to build an indicator and create a PDF fil
 - `awk` (used by the `makefile` to build the output name)
 - `ps2pdf` (provided by Ghostscript) to convert the jgraph PostScript output to PDF
 - Basic build tools (e.g., `gcc`, `make`) for compiling `jgraph` when `setup.sh` runs
+
+
+## References
+The data for the EPL teams are taken from FotMob Site linked as: https://www.fotmob.com/leagues/47/stats/premier-league/teams. 
