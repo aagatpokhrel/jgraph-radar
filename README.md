@@ -85,11 +85,11 @@ make
 make TEAMS="Arsenal Wolves"
 ```
 The upper command creates a graph for all the teams which is hard to see (but it can still be important to know which one is coming on top or bottom seeing the graph). 
-![All Teams Radar](examples/PLTeams.pdf)
+![All Teams Radar](examples/PLTeams.png)
 
 The specific teams command creates a pdf file named `AW.pdf` taking in the first letter of both the teams. This compares two teams with the polygons, with all the metrics.
 
-![Arsenal vs Wolves Comparison](examples/AW.pdf)
+![Arsenal vs Wolves Comparison](examples/AW.png)
 
 
 20 teams can be used to compare agains. The lab contains team data in `data/pl_teams.csv`. The available teams are:

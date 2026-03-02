@@ -12,9 +12,9 @@ INDICATOR = $(shell echo $(TEAMS) | awk '{for(i=1;i<=NF;i++) printf substr($$i,1
 
 # Determines file name if empty, every team is compared so
 ifeq ($(strip $(TEAMS)),)
-    PDF_NAME = PLTeams.pdf
+    PDF_NAME = PLTeams.png
 else
-    PDF_NAME = $(INDICATOR).pdf
+    PDF_NAME = $(INDICATOR).png
 endif
 
 all: $(EXEC) radar_plot
@@ -27,10 +27,17 @@ $(EXEC): $(SRC)
 prep:
 	@chmod +x $(JGRAPH)
 
+## This is for PDF generation
 # generate plot, pass in the args TEAMS along with the filename
 radar_plot: $(EXEC)
 	$(EXEC) $(TEAMS) | $(JGRAPH) -P | ps2pdf - $(PDF_NAME)
 	@echo "Generated $(PDF_NAME)"
+
+# This is for PNG generation (uncomment for png output)
+# radar_plot: $(EXEC)
+# 	$(EXEC) $(TEAMS) | $(JGRAPH) -P | ps2pdf - comparison.pdf
+# 	gs -dSAFER -dBATCH -dNOPAUSE -sDEVICE=png16m -r300 -sOutputFile="$(PDF_NAME)" comparison.pdf
+# 	@echo "Generated $(PDF_NAME)"
 
 clean:
 	rm -f $(EXEC) *.pdf
