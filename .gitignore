@@ -4,3 +4,4 @@ jgraph:Zone.Identifier
 *.jgr
 *.ps
 !examples/*.pdf
+radar
